@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Screening AI - Career Booster</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">🎯</span>
+                <h1>Resume Booster AI</h1>
+            </div>
+            <p class="tagline">Discover your perfect career match powered by AI</p>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-card">
+                    <div class="upload-icon">📄</div>
+                    <h2>Upload Your Resume</h2>
+                    <p class="upload-description">
+                        Get instant AI-powered career recommendations based on your skills and experience
+                    </p>
+                    
+                    <div class="upload-area" id="uploadArea">
+                        <input 
+                            type="file" 
+                            id="resumeInput" 
+                            accept=".pdf,.docx,.txt" 
+                            hidden
+                        />
+                        <div class="upload-placeholder">
+                            <span class="upload-cloud">☁️</span>
+                            <p><strong>Click to upload</strong> or drag and drop</p>
+                            <p class="file-types">PDF, DOCX, or TXT (Max 10MB)</p>
+                        </div>
+                    </div>
+                    
+                    <button class="btn-primary" id="analyzeBtn" disabled>
+                        <span>Analyze Resume</span>
+                        <span class="btn-arrow">→</span>
+                    </button>
+                    
+                    <div class="selected-file" id="selectedFile" style="display: none;">
+                        <span class="file-icon">📎</span>
+                        <span class="file-name"></span>
+                        <button class="remove-file" id="removeFile">✕</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Section -->
+            <div class="loading-section" id="loadingSection" style="display: none;">
+                <div class="loader"></div>
+                <p class="loading-text">Analyzing your resume...</p>
+                <p class="loading-subtext">Our AI is evaluating your skills and experience</p>
+            </div>
+
+            <!-- Results Section -->
+            <div class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h2>Your Career Match Results</h2>
+                    <button class="btn-secondary" id="analyzeAnother">
+                        <span>Analyze Another Resume</span>
+                    </button>
+                </div>
+
+                <!-- Primary Match -->
+                <div class="primary-match">
+                    <div class="match-badge">🏆 Best Match</div>
+                    <h3 class="match-role" id="primaryRole">Data Scientist</h3>
+                    <div class="confidence-bar">
+                        <div class="confidence-fill" id="primaryConfidence"></div>
+                    </div>
+                    <p class="confidence-text">
+                        <strong id="primaryConfidenceText">0%</strong> Confidence Match
+                    </p>
+                </div>
+
+                <!-- Top 3 Recommendations -->
+                <div class="recommendations">
+                    <h3 class="section-title">Top 3 Career Recommendations</h3>
+                    <div class="recommendation-cards" id="recommendationCards">
+                        <!-- Cards will be dynamically inserted -->
+                    </div>
+                </div>
+
+                <!-- Skills Analysis -->
+                <div class="skills-analysis">
+                    <h3 class="section-title">Skills Detected</h3>
+                    <div class="skills-container" id="skillsContainer">
+                        <!-- Skills will be dynamically inserted -->
+                    </div>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button class="btn-secondary" id="downloadReport">
+                        📥 Download Report
+                    </button>
+                    <button class="btn-outline" id="shareResults">
+                        🔗 Share Results
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Section -->
+            <div class="error-section" id="errorSection" style="display: none;">
+                <div class="error-icon">⚠️</div>
+                <h3>Something went wrong</h3>
+                <p class="error-message" id="errorMessage"></p>
+                <button class="btn-primary" id="tryAgain">Try Again</button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Powered by Machine Learning & Natural Language Processing</p>
+            <p class="footer-note">Resume Booster AI • Helping you find your perfect career match</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
