@@ -182,6 +182,15 @@ function displayResults(data) {
         skillsContainer.innerHTML = '<p style="color: #718096;">No specific skills detected</p>';
     }
 
+    // Display best fit role
+    displayBestFitRole(data.best_fit_role);
+
+    // Display job opportunities
+    displayJobOpportunities(data.job_opportunities);
+
+    // Display interview questions
+    displayInterviewQuestions(data.interview_prep);
+
     // Show results section
     showSection('results');
 }
@@ -226,6 +235,81 @@ function createRecommendationCard(rec, rank) {
     `;
 
     return card;
+}
+
+// New function to display best fit role
+function displayBestFitRole(bestFit) {
+    const bestFitCard = document.getElementById('bestFitCard');
+    const score = Math.round(bestFit.combined_score);
+    
+    bestFitCard.innerHTML = `
+        <div class="best-fit-content">
+            <div class="best-fit-icon">🏆</div>
+            <div class="best-fit-details">
+                <h4 class="best-fit-role">${bestFit.role}</h4>
+                <p class="best-fit-reason">${bestFit.reason}</p>
+                <div class="best-fit-score">
+                    <span class="score-label">Overall Match Score:</span>
+                    <span class="score-value">${score}%</span>
+                </div>
+                <div class="best-fit-bar">
+                    <div class="best-fit-fill" style="width: ${score}%"></div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
+// New function to display job opportunities
+function displayJobOpportunities(opportunities) {
+    const jobPortals = document.getElementById('jobPortals');
+    jobPortals.innerHTML = '';
+    
+    opportunities.forEach((opp, index) => {
+        const oppCard = document.createElement('div');
+        oppCard.className = 'job-opportunity-card';
+        
+        const linksHTML = opp.links.map(link => `
+            <a href="${link.url}" target="_blank" class="job-link">
+                <span class="job-link-icon">${link.icon}</span>
+                <span class="job-link-name">${link.name}</span>
+                <span class="job-link-arrow">→</span>
+            </a>
+        `).join('');
+        
+        oppCard.innerHTML = `
+            <div class="opp-header">
+                <span class="opp-rank">${index + 1}</span>
+                <h4 class="opp-role">${opp.role}</h4>
+            </div>
+            <div class="job-links">
+                ${linksHTML}
+            </div>
+        `;
+        
+        jobPortals.appendChild(oppCard);
+    });
+}
+
+// New function to display interview questions
+function displayInterviewQuestions(interviewPrep) {
+    const interviewQuestions = document.getElementById('interviewQuestions');
+    interviewQuestions.innerHTML = '';
+    
+    const header = document.createElement('div');
+    header.className = 'interview-header';
+    header.innerHTML = `<p class="interview-role">For: <strong>${interviewPrep.role}</strong></p>`;
+    interviewQuestions.appendChild(header);
+    
+    interviewPrep.questions.forEach((question, index) => {
+        const questionCard = document.createElement('div');
+        questionCard.className = 'question-card';
+        questionCard.innerHTML = `
+            <div class="question-number">Q${index + 1}</div>
+            <div class="question-text">${question}</div>
+        `;
+        interviewQuestions.appendChild(questionCard);
+    });
 }
 
 // Show section

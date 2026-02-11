@@ -65,6 +65,150 @@ JOB_SKILLS = {
     'CONSULTANT': ['consulting', 'business analysis', 'strategy', 'project management', 'client management'],
 }
 
+# Interview questions database by role
+INTERVIEW_QUESTIONS = {
+    'Data Science': [
+        'Explain the difference between supervised and unsupervised learning.',
+        'What is overfitting and how do you prevent it?',
+        'Describe a data science project you worked on from start to finish.',
+        'How do you handle missing data in a dataset?',
+        'What machine learning algorithms are you most familiar with?',
+        'Explain the bias-variance tradeoff.',
+        'How would you evaluate the performance of a classification model?',
+        'What is regularization and why is it important?',
+    ],
+    'Python Developer': [
+        'Explain the difference between list and tuple in Python.',
+        'What are decorators in Python and how do you use them?',
+        'Describe your experience with Django/Flask frameworks.',
+        'How do you handle exceptions in Python?',
+        'What is the difference between @staticmethod and @classmethod?',
+        'Explain Python\'s GIL (Global Interpreter Lock).',
+        'How do you optimize Python code for performance?',
+        'What are Python generators and why would you use them?',
+    ],
+    'Java Developer': [
+        'Explain the principles of Object-Oriented Programming.',
+        'What is the difference between abstract class and interface in Java?',
+        'Describe your experience with Spring framework.',
+        'How does garbage collection work in Java?',
+        'What are Java streams and lambda expressions?',
+        'Explain the concept of multithreading in Java.',
+        'What design patterns have you used in your projects?',
+        'How do you handle exceptions in Java?',
+    ],
+    'Web Designing': [
+        'How do you ensure your designs are responsive across devices?',
+        'Explain your design process from concept to final product.',
+        'What tools do you use for UI/UX design?',
+        'How do you approach accessibility in web design?',
+        'Describe a challenging design problem you solved.',
+        'How do you balance aesthetics with usability?',
+        'What are your thoughts on current web design trends?',
+        'How do you collaborate with developers to implement your designs?',
+    ],
+    'Machine Learning Engineer': [
+        'Explain the architecture of a neural network you have implemented.',
+        'What is backpropagation and how does it work?',
+        'Describe your experience with TensorFlow or PyTorch.',
+        'How do you deploy machine learning models in production?',
+        'What is transfer learning and when would you use it?',
+        'Explain the difference between CNN and RNN.',
+        'How do you handle imbalanced datasets?',
+        'What is your approach to hyperparameter tuning?',
+    ],
+    'DevOps Engineer': [
+        'Explain the CI/CD pipeline you have implemented.',
+        'What is containerization and how does Docker work?',
+        'Describe your experience with Kubernetes.',
+        'How do you monitor application performance in production?',
+        'What is Infrastructure as Code (IaC)?',
+        'Explain the difference between horizontal and vertical scaling.',
+        'How do you handle security in a DevOps environment?',
+        'Describe your experience with cloud platforms (AWS/Azure/GCP).',
+    ],
+    'Full Stack Developer': [
+        'Describe a full-stack application you built from scratch.',
+        'How do you ensure communication between frontend and backend?',
+        'What is RESTful API design?',
+        'Explain your experience with databases (SQL/NoSQL).',
+        'How do you handle authentication and authorization?',
+        'What frontend frameworks are you proficient in?',
+        'How do you optimize application performance?',
+        'Describe your version control workflow.',
+    ],
+    'Frontend Developer': [
+        'Explain the Virtual DOM and how React uses it.',
+        'What is the difference between state and props in React?',
+        'How do you ensure cross-browser compatibility?',
+        'Describe your experience with responsive design.',
+        'What is webpack and why is it used?',
+        'How do you optimize frontend performance?',
+        'Explain the concept of hooks in React.',
+        'What CSS preprocessors have you worked with?',
+    ],
+    'Backend Developer': [
+        'Explain RESTful API design principles.',
+        'How do you design a scalable database schema?',
+        'What is the difference between SQL and NoSQL databases?',
+        'Describe your experience with microservices architecture.',
+        'How do you handle API authentication and security?',
+        'What caching strategies have you implemented?',
+        'Explain database indexing and optimization.',
+        'How do you handle concurrent requests in your applications?',
+    ],
+    'Data Scientist': [
+        'Walk me through your approach to a new data science problem.',
+        'How do you communicate complex findings to non-technical stakeholders?',
+        'What statistical methods do you use most frequently?',
+        'Describe a time when your analysis led to business impact.',
+        'How do you validate your models?',
+        'What is A/B testing and how have you used it?',
+        'Explain dimensionality reduction techniques.',
+        'How do you stay updated with latest developments in data science?',
+    ],
+    'Business Analyst': [
+        'How do you gather and document business requirements?',
+        'Describe your experience with data visualization tools.',
+        'How do you prioritize competing stakeholder demands?',
+        'What methodologies (Agile/Scrum) have you worked with?',
+        'How do you measure the success of a project?',
+        'Describe a time you identified a business improvement opportunity.',
+        'How do you create effective business process models?',
+        'What SQL queries are you comfortable writing?',
+    ],
+    'Cloud Engineer': [
+        'Explain the shared responsibility model in cloud computing.',
+        'Describe your experience with AWS/Azure/GCP services.',
+        'How do you design for high availability and disaster recovery?',
+        'What is serverless computing and when would you use it?',
+        'How do you optimize cloud costs?',
+        'Explain VPC and network security in cloud environments.',
+        'What infrastructure automation tools have you used?',
+        'How do you implement cloud security best practices?',
+    ],
+    'Testing': [
+        'What is the difference between manual and automation testing?',
+        'Describe your experience with Selenium or other automation tools.',
+        'How do you write effective test cases?',
+        'What is the testing pyramid?',
+        'Explain the difference between functional and non-functional testing.',
+        'How do you prioritize testing efforts?',
+        'Describe your experience with API testing.',
+        'What metrics do you use to measure testing effectiveness?',
+    ],
+    'default': [
+        'Tell me about yourself and your professional background.',
+        'Why are you interested in this position?',
+        'Describe a challenging project you worked on.',
+        'How do you stay updated with industry trends?',
+        'What are your greatest strengths and weaknesses?',
+        'Where do you see yourself in 5 years?',
+        'How do you handle deadlines and pressure?',
+        'Describe a time you worked effectively in a team.',
+    ]
+}
+
 
 def download_nltk_data():
     """Download required NLTK data"""
@@ -109,6 +253,73 @@ def calculate_skill_match(resume_skills, job_category):
     match_percentage = (len(matched_skills) / len(required_skills)) * 100
     
     return match_percentage, list(matched_skills), list(missing_skills)
+
+
+def get_job_links(role):
+    """Get job application links for a specific role"""
+    role_encoded = role.replace(' ', '+')
+    
+    links = []
+    links.append({
+        'name': 'LinkedIn Jobs',
+        'url': f'https://www.linkedin.com/jobs/search/?keywords={role_encoded}',
+        'icon': '💼'
+    })
+    links.append({
+        'name': 'Indeed',
+        'url': f'https://www.indeed.com/jobs?q={role_encoded}',
+        'icon': '🔍'
+    })
+    links.append({
+        'name': 'Glassdoor',
+        'url': f'https://www.glassdoor.com/Job/jobs.htm?sc.keyword={role_encoded}',
+        'icon': '🏢'
+    })
+    links.append({
+        'name': 'Naukri',
+        'url': f'https://www.naukri.com/{role_encoded}-jobs',
+        'icon': '🇮🇳'
+    })
+    
+    return links
+
+
+def get_interview_questions(role, resume_skills):
+    """Generate interview questions based on role and resume skills"""
+    questions = INTERVIEW_QUESTIONS.get(role, INTERVIEW_QUESTIONS['default']).copy()
+    
+    # Add skill-based questions
+    skill_questions = []
+    for skill in resume_skills[:5]:
+        skill_lower = skill.lower()
+        if 'python' in skill_lower:
+            skill_questions.append(f'How would you use Python to solve {role.lower()} problems?')
+        elif 'machine learning' in skill_lower or 'ml' in skill_lower:
+            skill_questions.append('Describe a machine learning project you have worked on.')
+        elif 'sql' in skill_lower:
+            skill_questions.append('Write a complex SQL query you have used in your work.')
+        elif any(fw in skill_lower for fw in ['react', 'vue', 'angular']):
+            skill_questions.append(f'Explain your experience with {skill} in detail.')
+        elif 'docker' in skill_lower or 'kubernetes' in skill_lower:
+            skill_questions.append(f'How have you used {skill} in your projects?')
+    
+    all_questions = questions[:5] + skill_questions[:3]
+    return all_questions[:8]
+
+
+def select_best_fit_role(recommendations):
+    """Select the best fit role based on combined confidence and skill match"""
+    best_score = 0
+    best_role = recommendations[0]
+    
+    for rec in recommendations:
+        # Combined score: 70% confidence + 30% skill match
+        combined_score = (rec['confidence'] * 0.7) + (rec['skill_match'] / 100 * 0.3)
+        if combined_score > best_score:
+            best_score = combined_score
+            best_role = rec
+    
+    return best_role, best_score
 
 
 def clean_text(text):
@@ -248,12 +459,39 @@ def predict():
                 'missing_skills': missing_skills[:5] if len(recommendations) == 0 else []  # Only for top role
             })
         
-        # Prepare response
+        # Select best fit role based on stats
+        best_fit, best_score = select_best_fit_role(recommendations)
+        
+        # Get job links for top 3 roles
+        job_opportunities = []
+        for rec in recommendations:
+            job_opportunities.append({
+                'role': rec['role'],
+                'links': get_job_links(rec['role'])
+            })
+        
+        # Generate interview questions for the primary role
+        interview_questions = get_interview_questions(
+            recommendations[0]['role'],
+            resume_skills
+        )
+        
+        # Prepare response with new features
         response = {
             'primary_role': recommendations[0]['role'],
             'primary_confidence': recommendations[0]['confidence'],
             'recommendations': recommendations,
-            'extracted_skills': resume_skills[:10]  # Show top 10 skills
+            'extracted_skills': resume_skills[:10],
+            'best_fit_role': {
+                'role': best_fit['role'],
+                'combined_score': float(best_score * 100),
+                'reason': f"Best match based on {int(best_fit['confidence']*100)}% confidence and {int(best_fit['skill_match'])}% skill match"
+            },
+            'job_opportunities': job_opportunities,
+            'interview_prep': {
+                'role': recommendations[0]['role'],
+                'questions': interview_questions
+            }
         }
         
         return jsonify(response)

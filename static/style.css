@@ -522,3 +522,251 @@ body {
 .results-section {
     animation: fadeIn 0.6s ease;
 }
+
+/* Best Fit Section */
+.best-fit-section {
+    margin-bottom: 30px;
+}
+
+.section-description {
+    color: #718096;
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+}
+
+.best-fit-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    border-radius: 16px;
+    padding: 30px;
+    color: white;
+    box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3);
+}
+
+.best-fit-content {
+    display: flex;
+    align-items: center;
+    gap: 25px;
+}
+
+.best-fit-icon {
+    font-size: 64px;
+    flex-shrink: 0;
+}
+
+.best-fit-details {
+    flex: 1;
+}
+
+.best-fit-role {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.best-fit-reason {
+    opacity: 0.95;
+    margin-bottom: 15px;
+    font-size: 1.05rem;
+}
+
+.best-fit-score {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.score-label {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.best-fit-bar {
+    background: rgba(255, 255, 255, 0.3);
+    height: 12px;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.best-fit-fill {
+    background: white;
+    height: 100%;
+    border-radius: 6px;
+    transition: width 1s ease;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+}
+
+/* Job Opportunities Section */
+.job-opportunities-section {
+    margin-bottom: 30px;
+}
+
+.job-portals {
+    display: grid;
+    gap: 20px;
+}
+
+.job-opportunity-card {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 20px;
+    transition: all 0.3s ease;
+}
+
+.job-opportunity-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border-color: #667eea;
+}
+
+.opp-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.opp-rank {
+    background: #667eea;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.opp-role {
+    font-size: 1.25rem;
+    color: #2d3748;
+    margin: 0;
+}
+
+.job-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 10px;
+}
+
+.job-link {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    text-decoration: none;
+    color: #2d3748;
+    transition: all 0.3s ease;
+}
+
+.job-link:hover {
+    border-color: #667eea;
+    background: #edf2f7;
+    transform: translateX(5px);
+}
+
+.job-link-icon {
+    font-size: 20px;
+}
+
+.job-link-name {
+    flex: 1;
+    font-weight: 600;
+}
+
+.job-link-arrow {
+    font-size: 18px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.job-link:hover .job-link-arrow {
+    opacity: 1;
+}
+
+/* Interview Preparation Section */
+.interview-prep-section {
+    margin-bottom: 30px;
+}
+
+.interview-header {
+    margin-bottom: 15px;
+}
+
+.interview-role {
+    color: #718096;
+    font-size: 1.05rem;
+}
+
+.interview-questions {
+    display: grid;
+    gap: 15px;
+}
+
+.question-card {
+    display: flex;
+    gap: 15px;
+    background: #f7fafc;
+    border-left: 4px solid #667eea;
+    padding: 20px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.question-card:hover {
+    background: #edf2f7;
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.question-number {
+    background: #667eea;
+    color: white;
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+
+.question-text {
+    flex: 1;
+    color: #2d3748;
+    line-height: 1.6;
+    font-size: 1.05rem;
+}
+
+/* Responsive adjustments for new sections */
+@media (max-width: 768px) {
+    .best-fit-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .job-links {
+        grid-template-columns: 1fr;
+    }
+    
+    .best-fit-role {
+        font-size: 1.5rem;
+    }
+    
+    .question-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
