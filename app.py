@@ -258,10 +258,11 @@ def calculate_skill_match(resume_skills, job_category):
 def get_job_links(role):
     """Get job application links for a specific role"""
     role_encoded = role.replace(' ', '+')
+    role_underscore = role.replace(' ', '-').lower()
     
     links = []
     links.append({
-        'name': 'LinkedIn Jobs',
+        'name': 'LinkedIn',
         'url': f'https://www.linkedin.com/jobs/search/?keywords={role_encoded}',
         'icon': '💼'
     })
@@ -277,8 +278,18 @@ def get_job_links(role):
     })
     links.append({
         'name': 'Naukri',
-        'url': f'https://www.naukri.com/{role_encoded}-jobs',
+        'url': f'https://www.naukri.com/{role_underscore}-jobs',
         'icon': '🇮🇳'
+    })
+    links.append({
+        'name': 'Monster',
+        'url': f'https://www.monster.com/jobs/search?q={role_encoded}',
+        'icon': '👹'
+    })
+    links.append({
+        'name': 'SimplyHired',
+        'url': f'https://www.simplyhired.com/search?q={role_encoded}',
+        'icon': '🎯'
     })
     
     return links
@@ -470,11 +481,14 @@ def predict():
                 'links': get_job_links(rec['role'])
             })
         
-        # Generate interview questions for the primary role
-        interview_questions = get_interview_questions(
-            recommendations[0]['role'],
-            resume_skills
-        )
+        # Generate interview questions for all top 3 roles
+        interview_questions_all = []
+        for rec in recommendations:
+            questions = get_interview_questions(rec['role'], resume_skills)
+            interview_questions_all.append({
+                'role': rec['role'],
+                'questions': questions
+            })
         
         # Prepare response with new features
         response = {
@@ -488,10 +502,7 @@ def predict():
                 'reason': f"Best match based on {int(best_fit['confidence']*100)}% confidence and {int(best_fit['skill_match'])}% skill match"
             },
             'job_opportunities': job_opportunities,
-            'interview_prep': {
-                'role': recommendations[0]['role'],
-                'questions': interview_questions
-            }
+            'interview_prep': interview_questions_all
         }
         
         return jsonify(response)

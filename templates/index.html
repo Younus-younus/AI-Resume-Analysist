@@ -83,19 +83,36 @@
                     </p>
                 </div>
 
-                <!-- Top 3 Recommendations -->
-                <div class="recommendations">
-                    <h3 class="section-title">Top 3 Career Recommendations</h3>
-                    <div class="recommendation-cards" id="recommendationCards">
-                        <!-- Cards will be dynamically inserted -->
-                    </div>
+                <!-- Career & Skills Tab Navigation Bar -->
+                <div class="tab-navbar career-skills-navbar">
+                    <button class="tab-button active" data-tab="recommendations">
+                        <span class="tab-icon">📊</span>
+                        <span class="tab-text">Top 3 Recommendations</span>
+                    </button>
+                    <button class="tab-button" data-tab="skills">
+                        <span class="tab-icon">⚡</span>
+                        <span class="tab-text">Skills Detected</span>
+                    </button>
                 </div>
 
-                <!-- Skills Analysis -->
-                <div class="skills-analysis">
-                    <h3 class="section-title">Skills Detected</h3>
-                    <div class="skills-container" id="skillsContainer">
-                        <!-- Skills will be dynamically inserted -->
+                <!-- Career & Skills Tab Content Sections -->
+                <div class="tab-content-wrapper career-skills-wrapper">
+                    <!-- Top 3 Recommendations -->
+                    <div class="tab-content active" id="recommendationsTab">
+                        <div class="recommendations">
+                            <div class="recommendation-cards" id="recommendationCards">
+                                <!-- Cards will be dynamically inserted -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Skills Analysis -->
+                    <div class="tab-content" id="skillsTab">
+                        <div class="skills-analysis">
+                            <div class="skills-container" id="skillsContainer">
+                                <!-- Skills will be dynamically inserted -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -107,21 +124,38 @@
                     </div>
                 </div>
 
-                <!-- Job Opportunities Section -->
-                <div class="job-opportunities-section">
-                    <h3 class="section-title">💼 Where to Apply</h3>
-                    <p class="section-description">Direct links to find jobs matching your top recommended roles</p>
-                    <div class="job-portals" id="jobPortals">
-                        <!-- Will be dynamically inserted -->
-                    </div>
+                <!-- Tab Navigation Bar -->
+                <div class="tab-navbar">
+                    <button class="tab-button active" data-tab="apply">
+                        <span class="tab-icon">💼</span>
+                        <span class="tab-text">Where to Apply</span>
+                    </button>
+                    <button class="tab-button" data-tab="interview">
+                        <span class="tab-icon">📝</span>
+                        <span class="tab-text">Interview Questions</span>
+                    </button>
                 </div>
 
-                <!-- Interview Preparation Section -->
-                <div class="interview-prep-section">
-                    <h3 class="section-title">📝 Interview Preparation</h3>
-                    <p class="section-description">Practice these questions to prepare for your interviews</p>
-                    <div class="interview-questions" id="interviewQuestions">
-                        <!-- Will be dynamically inserted -->
+                <!-- Tab Content Sections -->
+                <div class="tab-content-wrapper">
+                    <!-- Job Opportunities Section -->
+                    <div class="tab-content active" id="applyTab">
+                        <div class="job-opportunities-section">
+                            <p class="section-description">Direct links to find jobs matching your top recommended roles</p>
+                            <div class="job-portals" id="jobPortals">
+                                <!-- Will be dynamically inserted -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interview Preparation Section -->
+                    <div class="tab-content" id="interviewTab">
+                        <div class="interview-prep-section">
+                            <p class="section-description">Practice these questions to prepare for your interviews</p>
+                            <div class="interview-questions" id="interviewQuestions">
+                                <!-- Will be dynamically inserted -->
+                            </div>
+                        </div>
                     </div>
                 </div>
 

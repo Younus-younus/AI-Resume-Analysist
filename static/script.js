@@ -45,6 +45,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Share results button
     document.getElementById('shareResults').addEventListener('click', shareResults);
+
+    // Tab navigation
+    setupTabNavigation();
+    setupCareerSkillsTabNavigation();
 });
 
 // Handle file selection
@@ -292,23 +296,43 @@ function displayJobOpportunities(opportunities) {
 }
 
 // New function to display interview questions
-function displayInterviewQuestions(interviewPrep) {
+function displayInterviewQuestions(interviewPrepList) {
     const interviewQuestions = document.getElementById('interviewQuestions');
     interviewQuestions.innerHTML = '';
     
-    const header = document.createElement('div');
-    header.className = 'interview-header';
-    header.innerHTML = `<p class="interview-role">For: <strong>${interviewPrep.role}</strong></p>`;
-    interviewQuestions.appendChild(header);
-    
-    interviewPrep.questions.forEach((question, index) => {
-        const questionCard = document.createElement('div');
-        questionCard.className = 'question-card';
-        questionCard.innerHTML = `
-            <div class="question-number">Q${index + 1}</div>
-            <div class="question-text">${question}</div>
+    // Display questions for all roles
+    interviewPrepList.forEach((interviewPrep, roleIndex) => {
+        // Create role section
+        const roleSection = document.createElement('div');
+        roleSection.className = 'interview-role-section';
+        
+        // Role header
+        const header = document.createElement('div');
+        header.className = 'interview-header';
+        header.innerHTML = `
+            <div class="interview-role-badge">
+                <span class="role-number">${roleIndex + 1}</span>
+                <span class="role-title">${interviewPrep.role}</span>
+            </div>
         `;
-        interviewQuestions.appendChild(questionCard);
+        roleSection.appendChild(header);
+        
+        // Questions container
+        const questionsContainer = document.createElement('div');
+        questionsContainer.className = 'questions-container';
+        
+        interviewPrep.questions.forEach((question, index) => {
+            const questionCard = document.createElement('div');
+            questionCard.className = 'question-card';
+            questionCard.innerHTML = `
+                <div class="question-number">Q${index + 1}</div>
+                <div class="question-text">${question}</div>
+            `;
+            questionsContainer.appendChild(questionCard);
+        });
+        
+        roleSection.appendChild(questionsContainer);
+        interviewQuestions.appendChild(roleSection);
     });
 }
 
@@ -405,3 +429,72 @@ function shareResults() {
         });
     }
 }
+
+// Setup tab navigation
+function setupTabNavigation() {
+    const navbar = document.querySelector('.tab-navbar:not(.career-skills-navbar)');
+    if (!navbar) return;
+    
+    const tabButtons = navbar.querySelectorAll('.tab-button');
+    const wrapper = document.querySelector('.tab-content-wrapper:not(.career-skills-wrapper)');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.getAttribute('data-tab');
+            
+            // Remove active class from all buttons in this navbar
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Hide all tab contents in this wrapper
+            if (wrapper) {
+                wrapper.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const selectedTab = document.getElementById(`${tabName}Tab`);
+                if (selectedTab) {
+                    selectedTab.classList.add('active');
+                }
+            }
+        });
+    });
+}
+
+// Setup career & skills tab navigation
+function setupCareerSkillsTabNavigation() {
+    const navbar = document.querySelector('.career-skills-navbar');
+    if (!navbar) return;
+    
+    const tabButtons = navbar.querySelectorAll('.tab-button');
+    const wrapper = document.querySelector('.career-skills-wrapper');
+    
+    tabButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const tabName = button.getAttribute('data-tab');
+            
+            // Remove active class from all buttons in this navbar
+            tabButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active class to clicked button
+            button.classList.add('active');
+            
+            // Hide all tab contents in this wrapper
+            if (wrapper) {
+                wrapper.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                // Show selected tab content
+                const selectedTab = document.getElementById(`${tabName}Tab`);
+                if (selectedTab) {
+                    selectedTab.classList.add('active');
+                }
+            }
+        });
+    });
+}
+
