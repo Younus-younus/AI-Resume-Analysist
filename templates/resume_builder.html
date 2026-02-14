@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Builder - Resume Booster AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">📝</span>
+            <h1>Resume Builder</h1>
+        </div>
+        <p class="tagline">Create your professional resume with customizable templates</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Resume Builder Section -->
+        <div class="resume-builder-section">
+            <div class="builder-header">
+                <a href="/" class="back-btn">← Back to Home</a>
+                <h2>Build Your Professional Resume</h2>
+                <p class="builder-subtitle">Fill in your details and choose from 3 professional templates</p>
+            </div>
+
+            <div class="builder-container">
+                <!-- Form Section -->
+                <div class="builder-form-wrapper">
+                    <form id="resumeForm" class="resume-form">
+                        <!-- Personal Details -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">👤</span>
+                                Personal Details
+                            </h3>
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label>Full Name *</label>
+                                    <input type="text" name="fullName" required placeholder="John Doe">
+                                </div>
+                                <div class="form-group">
+                                    <label>Email *</label>
+                                    <input type="email" name="email" required placeholder="john@example.com">
+                                </div>
+                                <div class="form-group">
+                                    <label>Phone *</label>
+                                    <input type="tel" name="phone" required placeholder="+1 234 567 8900">
+                                </div>
+                                <div class="form-group">
+                                    <label>Location *</label>
+                                    <input type="text" name="location" required placeholder="New York, NY">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>LinkedIn Profile</label>
+                                    <input type="url" name="linkedin" placeholder="https://linkedin.com/in/johndoe">
+                                </div>
+                                <div class="form-group full-width">
+                                    <label>Portfolio/Website</label>
+                                    <input type="url" name="portfolio" placeholder="https://johndoe.com">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Professional Summary -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">📋</span>
+                                Professional Summary
+                            </h3>
+                            <div class="form-group">
+                                <label>Summary *</label>
+                                <textarea name="summary" rows="4" required placeholder="Brief overview of your professional background, skills, and career goals..."></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Skills -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">⚡</span>
+                                Skills
+                            </h3>
+                            <div class="form-group">
+                                <label>Skills (comma-separated) *</label>
+                                <input type="text" name="skills" required placeholder="Python, JavaScript, React, Machine Learning, SQL">
+                                <small>Separate skills with commas</small>
+                            </div>
+                        </div>
+
+                        <!-- Education -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">🎓</span>
+                                Education
+                            </h3>
+                            <div id="educationContainer">
+                                <div class="dynamic-item education-item">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Degree *</label>
+                                            <input type="text" name="degree[]" required placeholder="Bachelor of Science">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Institution *</label>
+                                            <input type="text" name="institution[]" required placeholder="University Name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Year *</label>
+                                            <input type="text" name="eduYear[]" required placeholder="2018 - 2022">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>GPA/Grade</label>
+                                            <input type="text" name="grade[]" placeholder="3.8/4.0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button type="button" class="add-more-btn" id="addEducation">+ Add More Education</button>
+                        </div>
+
+                        <!-- Experience -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">💼</span>
+                                Work Experience
+                            </h3>
+                            <div id="experienceContainer">
+                                <div class="dynamic-item experience-item">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Job Title *</label>
+                                            <input type="text" name="jobTitle[]" required placeholder="Software Engineer">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Company *</label>
+                                            <input type="text" name="company[]" required placeholder="Company Name">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Duration *</label>
+                                            <input type="text" name="duration[]" required placeholder="Jan 2022 - Present">
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Description *</label>
+                                            <textarea name="jobDescription[]" rows="3" required placeholder="Key responsibilities and achievements..."></textarea>
+                                        </div>
+                                    </div>
+                                    <button type="button" class="remove-item-btn" onclick="removeItem(this)">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-more-btn" id="addExperience">+ Add More Experience</button>
+                        </div>
+
+                        <!-- Projects -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">🚀</span>
+                                Projects
+                            </h3>
+                            <div id="projectsContainer">
+                                <div class="dynamic-item project-item">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Project Name *</label>
+                                            <input type="text" name="projectName[]" required placeholder="E-commerce Website">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Technologies *</label>
+                                            <input type="text" name="technologies[]" required placeholder="React, Node.js, MongoDB">
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Description *</label>
+                                            <textarea name="projectDescription[]" rows="3" required placeholder="Project details and outcomes..."></textarea>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Link</label>
+                                            <input type="url" name="projectLink[]" placeholder="https://github.com/username/project">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="remove-item-btn" onclick="removeItem(this)">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-more-btn" id="addProject">+ Add More Projects</button>
+                        </div>
+
+                        <!-- Certifications -->
+                        <div class="form-section">
+                            <h3 class="form-section-title">
+                                <span class="section-icon">🏆</span>
+                                Certifications
+                            </h3>
+                            <div id="certificationsContainer">
+                                <div class="dynamic-item certification-item">
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Certification Name</label>
+                                            <input type="text" name="certName[]" placeholder="AWS Certified Solutions Architect">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Issuing Organization</label>
+                                            <input type="text" name="certOrg[]" placeholder="Amazon Web Services">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Year</label>
+                                            <input type="text" name="certYear[]" placeholder="2023">
+                                        </div>
+                                    </div>
+                                    <button type="button" class="remove-item-btn" onclick="removeItem(this)">Remove</button>
+                                </div>
+                            </div>
+                            <button type="button" class="add-more-btn" id="addCertification">+ Add More Certifications</button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Template Selection -->
+                <div class="template-selection-wrapper">
+                    <h3 class="template-title">Choose Template</h3>
+                    <div class="template-cards">
+                        <div class="template-card" data-template="modern">
+                            <div class="template-preview">
+                                <div class="mini-template modern-preview">
+                                    <div class="preview-sidebar"></div>
+                                    <div class="preview-content">
+                                        <div class="preview-line"></div>
+                                        <div class="preview-line short"></div>
+                                        <div class="preview-line"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>Modern Minimal</h4>
+                            <p>Clean sidebar design</p>
+                            <div class="template-check">✓</div>
+                        </div>
+                        <div class="template-card" data-template="professional">
+                            <div class="template-preview">
+                                <div class="mini-template professional-preview">
+                                    <div class="preview-header"></div>
+                                    <div class="preview-line"></div>
+                                    <div class="preview-line"></div>
+                                    <div class="preview-line short"></div>
+                                </div>
+                            </div>
+                            <h4>Professional Corporate</h4>
+                            <p>ATS-friendly format</p>
+                            <div class="template-check">✓</div>
+                        </div>
+                        <div class="template-card active" data-template="creative">
+                            <div class="template-preview">
+                                <div class="mini-template creative-preview">
+                                    <div class="preview-columns">
+                                        <div class="preview-col"></div>
+                                        <div class="preview-col"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <h4>Creative Layout</h4>
+                            <p>Two-column color accents</p>
+                            <div class="template-check">✓</div>
+                        </div>
+                    </div>
+                    <button class="btn-primary generate-btn" id="generateResume">
+                        <span>📥 Generate & Download Resume</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>Powered by Machine Learning & Natural Language Processing</p>
+        <p class="footer-note">Resume Booster AI • Helping you find your perfect career match</p>
+    </footer>
+
+    <!-- PDF Generation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>

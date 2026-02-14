@@ -401,6 +401,12 @@ def index():
     return render_template('index.html')
 
 
+@app.route('/resume-builder')
+def resume_builder():
+    """Serve the resume builder page"""
+    return render_template('resume_builder.html')
+
+
 @app.route('/predict', methods=['POST'])
 def predict():
     """Handle resume upload and prediction"""
