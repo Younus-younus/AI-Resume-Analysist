@@ -7,18 +7,17 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <span class="logo-icon">🎯</span>
-                <h1>Resume Booster AI</h1>
-            </div>
-            <p class="tagline">Discover your perfect career match powered by AI</p>
-        </header>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <span class="logo-icon">🎯</span>
+            <h1>Resume Booster AI</h1>
+        </div>
+        <p class="tagline">Discover your perfect career match powered by AI</p>
+    </header>
 
-        <!-- Main Content -->
-        <main class="main-content">
+    <!-- Main Content -->
+    <main class="main-content">
             <!-- Upload Section -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-card">
@@ -64,24 +63,27 @@
 
             <!-- Results Section -->
             <div class="results-section" id="resultsSection" style="display: none;">
-                <div class="results-header">
-                    <h2>Your Career Match Results</h2>
-                    <button class="btn-secondary" id="analyzeAnother">
-                        <span>Analyze Another Resume</span>
-                    </button>
-                </div>
+                <div class="results-layout">
+                    <!-- Main Content Area -->
+                    <div class="results-main-content">
+                        <div class="results-header">
+                            <h2>Your Career Match Results</h2>
+                            <button class="btn-secondary" id="analyzeAnother">
+                                <span>Analyze Another Resume</span>
+                            </button>
+                        </div>
 
-                <!-- Primary Match -->
-                <div class="primary-match">
-                    <div class="match-badge">🏆 Best Match</div>
-                    <h3 class="match-role" id="primaryRole">Data Scientist</h3>
-                    <div class="confidence-bar">
-                        <div class="confidence-fill" id="primaryConfidence"></div>
-                    </div>
-                    <p class="confidence-text">
-                        <strong id="primaryConfidenceText">0%</strong> Confidence Match
-                    </p>
-                </div>
+                        <!-- Primary Match -->
+                        <div class="primary-match">
+                            <div class="match-badge">🏆 Best Match</div>
+                            <h3 class="match-role" id="primaryRole">Data Scientist</h3>
+                            <div class="confidence-bar">
+                                <div class="confidence-fill" id="primaryConfidence"></div>
+                            </div>
+                            <p class="confidence-text">
+                                <strong id="primaryConfidenceText">0%</strong> Confidence Match
+                            </p>
+                        </div>
 
                 <!-- Career & Skills Tab Navigation Bar -->
                 <div class="tab-navbar career-skills-navbar">
@@ -168,6 +170,83 @@
                         🔗 Share Results
                     </button>
                 </div>
+                    </div>
+                    
+                    <!-- Sidebar -->
+                    <div class="results-sidebar">
+                        <!-- Quick Stats Card -->
+                        <div class="sidebar-card stats-card">
+                            <h3 class="sidebar-title">📊 Summary</h3>
+                            <div class="stat-item">
+                                <span class="stat-icon">🎯</span>
+                                <div class="stat-info">
+                                    <div class="stat-label">Best Match</div>
+                                    <div class="stat-value" id="sidebarBestMatch">-</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">⚡</span>
+                                <div class="stat-info">
+                                    <div class="stat-label">Skills Found</div>
+                                    <div class="stat-value" id="sidebarSkillsCount">0</div>
+                                </div>
+                            </div>
+                            <div class="stat-item">
+                                <span class="stat-icon">💼</span>
+                                <div class="stat-info">
+                                    <div class="stat-label">Job Matches</div>
+                                    <div class="stat-value" id="sidebarJobsCount">3</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Quick Actions Card -->
+                        <div class="sidebar-card actions-card">
+                            <h3 class="sidebar-title">⚡ Quick Actions</h3>
+                            <button class="sidebar-btn" id="sidebarDownload">
+                                <span class="sidebar-btn-icon">📥</span>
+                                <span>Download PDF</span>
+                            </button>
+                            <button class="sidebar-btn" id="sidebarShare">
+                                <span class="sidebar-btn-icon">🔗</span>
+                                <span>Share Results</span>
+                            </button>
+                            <button class="sidebar-btn" id="sidebarNewAnalysis">
+                                <span class="sidebar-btn-icon">🔄</span>
+                                <span>New Analysis</span>
+                            </button>
+                        </div>
+
+                        <!-- Tips Card -->
+                        <div class="sidebar-card tips-card">
+                            <h3 class="sidebar-title">💡 Pro Tips</h3>
+                            <div class="tip-item">
+                                <span class="tip-number">1</span>
+                                <p>Tailor your resume for each job application</p>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-number">2</span>
+                                <p>Highlight quantifiable achievements</p>
+                            </div>
+                            <div class="tip-item">
+                                <span class="tip-number">3</span>
+                                <p>Use keywords from job descriptions</p>
+                            </div>
+                        </div>
+
+                        <!-- Confidence Meter -->
+                        <div class="sidebar-card confidence-card">
+                            <h3 class="sidebar-title">📈 Match Score</h3>
+                            <div class="confidence-meter">
+                                <div class="meter-value" id="sidebarConfidence">0%</div>
+                                <div class="meter-bar">
+                                    <div class="meter-fill" id="sidebarConfidenceFill"></div>
+                                </div>
+                                <div class="meter-label">Confidence Level</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Error Section -->
@@ -184,7 +263,6 @@
             <p>Powered by Machine Learning & Natural Language Processing</p>
             <p class="footer-note">Resume Booster AI • Helping you find your perfect career match</p>
         </footer>
-    </div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>

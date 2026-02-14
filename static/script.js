@@ -183,7 +183,7 @@ function displayResults(data) {
             skillsContainer.appendChild(badge);
         });
     } else {
-        skillsContainer.innerHTML = '<p style="color: #718096;">No specific skills detected</p>';
+        skillsContainer.innerHTML = '<p style="color: #40798c;">No specific skills detected</p>';
     }
 
     // Display best fit role
@@ -194,6 +194,9 @@ function displayResults(data) {
 
     // Display interview questions
     displayInterviewQuestions(data.interview_prep);
+
+    // Update sidebar
+    updateSidebar(data);
 
     // Show results section
     showSection('results');
@@ -496,5 +499,55 @@ function setupCareerSkillsTabNavigation() {
             }
         });
     });
+}
+
+// Update sidebar with results data
+function updateSidebar(data) {
+    // Update best match
+    const sidebarBestMatch = document.getElementById('sidebarBestMatch');
+    if (sidebarBestMatch) {
+        sidebarBestMatch.textContent = data.primary_role;
+    }
+    
+    // Update skills count
+    const sidebarSkillsCount = document.getElementById('sidebarSkillsCount');
+    if (sidebarSkillsCount && data.extracted_skills) {
+        sidebarSkillsCount.textContent = data.extracted_skills.length;
+    }
+    
+    // Update confidence in sidebar
+    const confidencePercent = Math.round(data.primary_confidence * 100);
+    const sidebarConfidence = document.getElementById('sidebarConfidence');
+    const sidebarConfidenceFill = document.getElementById('sidebarConfidenceFill');
+    
+    if (sidebarConfidence) {
+        sidebarConfidence.textContent = confidencePercent + '%';
+    }
+    
+    if (sidebarConfidenceFill) {
+        sidebarConfidenceFill.style.width = confidencePercent + '%';
+    }
+    
+    // Setup sidebar button event listeners
+    setupSidebarButtons();
+}
+
+// Setup sidebar button event listeners
+function setupSidebarButtons() {
+    const sidebarDownload = document.getElementById('sidebarDownload');
+    const sidebarShare = document.getElementById('sidebarShare');
+    const sidebarNewAnalysis = document.getElementById('sidebarNewAnalysis');
+    
+    if (sidebarDownload) {
+        sidebarDownload.addEventListener('click', downloadReport);
+    }
+    
+    if (sidebarShare) {
+        sidebarShare.addEventListener('click', shareResults);
+    }
+    
+    if (sidebarNewAnalysis) {
+        sidebarNewAnalysis.addEventListener('click', resetToUpload);
+    }
 }
 
