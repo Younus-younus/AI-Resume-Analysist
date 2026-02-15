@@ -550,9 +550,20 @@ if __name__ == '__main__':
         load_models()
         print("\n" + "=" * 60)
         print("🚀 Starting server...")
-        print("📱 Open your browser and go to: http://localhost:5000")
+        
+        # Get port from environment variable (for deployment) or use 5000 for local
+        port = int(os.environ.get('PORT', 5000))
+        debug_mode = os.environ.get('FLASK_ENV') == 'development'
+        
+        if debug_mode:
+            print("📱 Open your browser and go to: http://localhost:5000")
+        
         print("\n" + "=" * 60)
-        app.run(debug=True, host='0.0.0.0', port=5000)
+        app.run(debug=debug_mode, host='0.0.0.0', port=port)
     except FileNotFoundError as e:
         print(f"\n❌ Error: {e}")
         print("\nPlease run 'python main.py' first to train the model!")
+else:
+    # For production (gunicorn)
+    download_nltk_data()
+    load_models()
