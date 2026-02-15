@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Booster AI - Home</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Additional styles for homepage */
+        .home-container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .home-main-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+        }
+
+        .feature-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-card a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <h1>Resume Booster AI</h1>
+        </div>
+        <p class="tagline">Discover your perfect career match powered by AI</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="home-main-content">
+        <div class="home-container">
+            <!-- Feature Selection Section -->
+            <div class="feature-selection-section">
+                <h2 class="feature-title">Choose Your Tool</h2>
+                <p class="feature-subtitle">Select what you'd like to do today</p>
+                <div class="feature-cards">
+                    <div class="feature-card" onclick="window.location.href='/screening'">
+                        <h3>Resume Screening</h3>
+                        <p>Upload your resume and get AI-powered career recommendations based on your skills</p>
+                        <button class="feature-btn">Get Started →</button>
+                    </div>
+                    <div class="feature-card" onclick="window.location.href='/resume-builder'">
+                        <h3>Resume Builder</h3>
+                        <p>Create a professional resume from scratch with customizable templates</p>
+                        <button class="feature-btn">Build Resume →</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer style="text-align: center; padding: 2rem; color: #666; font-size: 0.9rem;">
+        <p>&copy; 2026 Resume Booster AI. Empowering your career journey.</p>
+    </footer>
+
+    <script>
+        // Add keyboard navigation
+        document.addEventListener('keydown', (e) => {
+            if (e.key === '1') {
+                window.location.href = '/screening';
+            } else if (e.key === '2') {
+                window.location.href = '/resume-builder';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,3 +1,6 @@
+// Import docx library for Word document generation
+import { AlignmentType, BorderStyle, Document, HeadingLevel, Packer, Paragraph, TextRun } from 'https://cdn.skypack.dev/docx@8.5.0';
+
 // State management
 let currentFile = null;
 
@@ -225,7 +228,7 @@ function createRecommendationCard(rec, rank) {
         </div>
         ${rec.matched_skills.length > 0 ? `
             <div class="card-skills">
-                <div class="skills-label">✅ Matched Skills:</div>
+                <div class="skills-label">Matched Skills:</div>
                 <div class="skill-tags">
                     ${rec.matched_skills.map(skill => `<span class="skill-tag">${skill}</span>`).join('')}
                 </div>
@@ -233,7 +236,7 @@ function createRecommendationCard(rec, rank) {
         ` : ''}
         ${rec.missing_skills && rec.missing_skills.length > 0 ? `
             <div class="card-skills">
-                <div class="skills-label">⚠️ Skills to Learn:</div>
+                <div class="skills-label">Skills to Learn:</div>
                 <div class="skill-tags">
                     ${rec.missing_skills.map(skill => `<span class="skill-tag missing">${skill}</span>`).join('')}
                 </div>
@@ -251,7 +254,6 @@ function displayBestFitRole(bestFit) {
     
     bestFitCard.innerHTML = `
         <div class="best-fit-content">
-            <div class="best-fit-icon">🏆</div>
             <div class="best-fit-details">
                 <h4 class="best-fit-role">${bestFit.role}</h4>
                 <p class="best-fit-reason">${bestFit.reason}</p>
@@ -416,7 +418,7 @@ function shareResults() {
     const primaryRole = document.getElementById('primaryRole').textContent;
     const confidence = document.getElementById('primaryConfidenceText').textContent;
     
-    const shareText = `I just analyzed my resume with Resume Booster AI! 🎯\n\nBest Match: ${primaryRole}\nConfidence: ${confidence}\n\nCheck it out and discover your perfect career match!`;
+    const shareText = `I just analyzed my resume with Resume Booster AI!\n\nBest Match: ${primaryRole}\nConfidence: ${confidence}\n\nCheck it out and discover your perfect career match!`;
     
     if (navigator.share) {
         navigator.share({
@@ -557,34 +559,22 @@ function setupSidebarButtons() {
    ============================================ */
 
 // Resume Builder State
-let selectedTemplate = 'creative';
+let selectedTemplate = 'standard';
 let resumeData = {};
 
 // Initialize Resume Builder
 document.addEventListener('DOMContentLoaded', () => {
-    // Feature selection (for index.html)
-    const selectScreening = document.getElementById('selectScreening');
-    const featureSelection = document.getElementById('featureSelection');
-    
-    if (selectScreening) {
-        selectScreening.addEventListener('click', () => {
-            if (featureSelection) {
-                featureSelection.style.display = 'none';
-            }
-            if (uploadSection) {
-                uploadSection.style.display = 'block';
-            }
-        });
-    }
-    
     // Template selection (for resume_builder.html)
     const templateCards = document.querySelectorAll('.template-card');
     if (templateCards.length > 0) {
         templateCards.forEach(card => {
             card.addEventListener('click', () => {
-                templateCards.forEach(c => c.classList.remove('active'));
-                card.classList.add('active');
-                selectedTemplate = card.getAttribute('data-template');
+                // Only allow clicking on non-disabled cards
+                if (!card.classList.contains('disabled')) {
+                    templateCards.forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    selectedTemplate = card.getAttribute('data-template');
+                }
             });
         });
     }
@@ -716,6 +706,9 @@ function removeItem(button) {
     button.parentElement.remove();
 }
 
+// Expose removeItem to global scope for inline onclick handlers
+window.removeItem = removeItem;
+
 // Collect form data
 function collectFormData() {
     const form = document.getElementById('resumeForm');
@@ -808,7 +801,7 @@ function collectFormData() {
 }
 
 // Generate resume
-async function generateResume() {
+async function generateResume(event) {
     const form = document.getElementById('resumeForm');
     
     if (!form.checkValidity()) {
@@ -816,151 +809,609 @@ async function generateResume() {
         return;
     }
     
-    resumeData = collectFormData();
-    
-    // Create PDF based on template
-    const pdfContent = createResumeHTML(resumeData, selectedTemplate);
-    
-    // Generate PDF
-    const element = document.createElement('div');
-    element.innerHTML = pdfContent;
-    element.style.position = 'absolute';
-    element.style.left = '-9999px';
-    document.body.appendChild(element);
-    
-    const opt = {
-        margin: 0,
-        filename: `${resumeData.personal.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // Get button reference
+    const button = event ? event.target : document.getElementById('generateResume');
+    const originalText = button.textContent;
+    button.textContent = 'Generating Document...';
+    button.disabled = true;
     
     try {
-        await html2pdf().set(opt).from(element).save();
-        alert('Resume downloaded successfully!');
+        // Collect form data
+        resumeData = collectFormData();
+        console.log('Resume Data:', resumeData);
+        
+        // Validate required data
+        if (!resumeData.personal.fullName || !resumeData.personal.email) {
+            alert('Please fill in at least your name and email.');
+            return;
+        }
+        
+        // Create Word document sections
+        const sections = [];
+        
+        // Header - Name
+        sections.push(
+            new Paragraph({
+                text: resumeData.personal.fullName,
+                heading: HeadingLevel.HEADING_1,
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 100 }
+            })
+        );
+        
+        // Contact Info
+        const contactText = `${resumeData.personal.email} | ${resumeData.personal.phone} | ${resumeData.personal.location}`;
+        sections.push(
+            new Paragraph({
+                text: contactText,
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 100 }
+            })
+        );
+        
+        // Links if available
+        if (resumeData.personal.linkedin || resumeData.personal.portfolio) {
+            let links = [];
+            if (resumeData.personal.linkedin) links.push(resumeData.personal.linkedin);
+            if (resumeData.personal.portfolio) links.push(resumeData.personal.portfolio);
+            sections.push(
+                new Paragraph({
+                    text: links.join(' | '),
+                    alignment: AlignmentType.CENTER,
+                    spacing: { after: 200 }
+                })
+            );
+        }
+        
+        // Professional Summary Section
+        sections.push(
+            new Paragraph({
+                text: 'PROFESSIONAL SUMMARY',
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 200, after: 100 },
+                border: {
+                    bottom: {
+                        color: "3498db",
+                        space: 1,
+                        style: BorderStyle.SINGLE,
+                        size: 6
+                    }
+                }
+            })
+        );
+        
+        sections.push(
+            new Paragraph({
+                text: resumeData.summary,
+                spacing: { after: 200 }
+            })
+        );
+        
+        // Skills Section
+        sections.push(
+            new Paragraph({
+                text: 'SKILLS',
+                heading: HeadingLevel.HEADING_2,
+                spacing: { before: 200, after: 100 },
+                border: {
+                    bottom: {
+                        color: "3498db",
+                        space: 1,
+                        style: BorderStyle.SINGLE,
+                        size: 6
+                    }
+                }
+            })
+        );
+        
+        sections.push(
+            new Paragraph({
+                text: resumeData.skills.join(' • '),
+                spacing: { after: 200 }
+            })
+        );
+        
+        // Experience Section
+        if (resumeData.experience && resumeData.experience.length > 0) {
+            sections.push(
+                new Paragraph({
+                    text: 'PROFESSIONAL EXPERIENCE',
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200, after: 100 },
+                    border: {
+                        bottom: {
+                            color: "3498db",
+                            space: 1,
+                            style: BorderStyle.SINGLE,
+                            size: 6
+                        }
+                    }
+                })
+            );
+            
+            resumeData.experience.forEach(exp => {
+                sections.push(
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: exp.title,
+                                bold: true,
+                                size: 24
+                            }),
+                            new TextRun({
+                                text: `\t\t${exp.duration}`,
+                                italics: true
+                            })
+                        ],
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                sections.push(
+                    new Paragraph({
+                        text: exp.company,
+                        bold: true,
+                        color: "3498db",
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                sections.push(
+                    new Paragraph({
+                        text: exp.description,
+                        spacing: { after: 150 }
+                    })
+                );
+            });
+        }
+        
+        // Projects Section
+        if (resumeData.projects && resumeData.projects.length > 0) {
+            sections.push(
+                new Paragraph({
+                    text: 'PROJECTS',
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200, after: 100 },
+                    border: {
+                        bottom: {
+                            color: "3498db",
+                            space: 1,
+                            style: BorderStyle.SINGLE,
+                            size: 6
+                        }
+                    }
+                })
+            );
+            
+            resumeData.projects.forEach(project => {
+                sections.push(
+                    new Paragraph({
+                        text: project.name,
+                        bold: true,
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                sections.push(
+                    new Paragraph({
+                        text: project.technologies,
+                        italics: true,
+                        color: "3498db",
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                sections.push(
+                    new Paragraph({
+                        text: project.description,
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                if (project.link) {
+                    sections.push(
+                        new Paragraph({
+                            text: project.link,
+                            color: "3498db",
+                            spacing: { after: 100 }
+                        })
+                    );
+                }
+            });
+        }
+        
+        // Education Section
+        if (resumeData.education && resumeData.education.length > 0) {
+            sections.push(
+                new Paragraph({
+                    text: 'EDUCATION',
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200, after: 100 },
+                    border: {
+                        bottom: {
+                            color: "3498db",
+                            space: 1,
+                            style: BorderStyle.SINGLE,
+                            size: 6
+                        }
+                    }
+                })
+            );
+            
+            resumeData.education.forEach(edu => {
+                sections.push(
+                    new Paragraph({
+                        children: [
+                            new TextRun({
+                                text: edu.degree,
+                                bold: true
+                            }),
+                            new TextRun({
+                                text: `\t\t${edu.year}`,
+                                italics: true
+                            })
+                        ],
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                sections.push(
+                    new Paragraph({
+                        text: edu.institution,
+                        spacing: { after: 50 }
+                    })
+                );
+                
+                if (edu.grade) {
+                    sections.push(
+                        new Paragraph({
+                            text: edu.grade,
+                            spacing: { after: 100 }
+                        })
+                    );
+                }
+            });
+        }
+        
+        // Certifications Section
+        const validCerts = resumeData.certifications.filter(c => c.name);
+        if (validCerts.length > 0) {
+            sections.push(
+                new Paragraph({
+                    text: 'CERTIFICATIONS',
+                    heading: HeadingLevel.HEADING_2,
+                    spacing: { before: 200, after: 100 },
+                    border: {
+                        bottom: {
+                            color: "3498db",
+                            space: 1,
+                            style: BorderStyle.SINGLE,
+                            size: 6
+                        }
+                    }
+                })
+            );
+            
+            validCerts.forEach(cert => {
+                sections.push(
+                    new Paragraph({
+                        text: `${cert.name} - ${cert.organization}, ${cert.year}`,
+                        spacing: { after: 100 }
+                    })
+                );
+            });
+        }
+        
+        // Create the document
+        const doc = new Document({
+            sections: [{
+                properties: {},
+                children: sections
+            }]
+        });
+        
+        // Generate and download the document
+        const blob = await Packer.toBlob(doc);
+        const filename = `${resumeData.personal.fullName.replace(/\s+/g, '_')}_Resume.docx`;
+        saveAs(blob, filename);
+        
+        console.log('Word document generated successfully!');
+        alert('Resume downloaded successfully as Word document!');
+        
     } catch (error) {
-        console.error('Error generating PDF:', error);
-        alert('Error generating PDF. Please try again.');
+        console.error('Error generating document:', error);
+        alert('❌ Error generating document: ' + error.message + '\n\nPlease check the console for details.');
     } finally {
-        document.body.removeChild(element);
+        button.textContent = originalText;
+        button.disabled = false;
     }
 }
 
 // Create resume HTML based on template
 function createResumeHTML(data, template) {
-    switch(template) {
-        case 'modern':
-            return createModernTemplate(data);
-        case 'professional':
-            return createProfessionalTemplate(data);
-        case 'creative':
-            return createCreativeTemplate(data);
-        default:
-            return createProfessionalTemplate(data);
+    // For now, only standard template is available
+    return createStandardTemplate(data);
+}
+
+// Standard Professional Template - Simple and Reliable
+function createStandardTemplate(data) {
+    let html = `
+    <div style="width: 210mm; min-height: 297mm; padding: 20mm; margin: 0; background: white; font-family: Arial, sans-serif; color: black; box-sizing: border-box;">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 20px; padding-bottom: 15px; border-bottom: 3px solid #2c3e50;">
+            <h1 style="margin: 0 0 10px 0; font-size: 32px; color: #2c3e50; font-weight: bold;">${data.personal.fullName}</h1>
+            <p style="margin: 0; font-size: 12px; color: #555; line-height: 1.6;">
+                ${data.personal.email} | ${data.personal.phone} | ${data.personal.location}
+            </p>`;
+    
+    if (data.personal.linkedin || data.personal.portfolio) {
+        html += `<p style="margin: 5px 0 0 0; font-size: 11px; color: #555;">`;
+        if (data.personal.linkedin) html += `${data.personal.linkedin}`;
+        if (data.personal.linkedin && data.personal.portfolio) html += ` | `;
+        if (data.personal.portfolio) html += `${data.personal.portfolio}`;
+        html += `</p>`;
     }
+    
+    html += `</div>`;
+    
+    // Professional Summary
+    html += `
+        <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #2c3e50; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Professional Summary</h2>
+            <p style="margin: 0; font-size: 11px; color: #333; line-height: 1.6; text-align: justify;">${data.summary}</p>
+        </div>`;
+    
+    // Skills
+    html += `
+        <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #2c3e50; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Skills</h2>
+            <p style="margin: 0; font-size: 11px; color: #333; line-height: 1.8;">${data.skills.join(' • ')}</p>
+        </div>`;
+    
+    // Experience
+    if (data.experience && data.experience.length > 0) {
+        html += `
+        <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #2c3e50; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Professional Experience</h2>`;
+        
+        data.experience.forEach(exp => {
+            html += `
+            <div style="margin-bottom: 15px;">
+                <div style="margin-bottom: 5px;">
+                    <strong style="font-size: 13px; color: #2c3e50;">${exp.title}</strong>
+                    <span style="float: right; font-size: 11px; color: #666; font-style: italic;">${exp.duration}</span>
+                </div>
+                <div style="clear: both; font-size: 11px; color: #3498db; font-weight: bold; margin-bottom: 5px;">${exp.company}</div>
+                <p style="margin: 0; font-size: 11px; color: #444; line-height: 1.6;">${exp.description}</p>
+            </div>`;
+        });
+        
+        html += `</div>`;
+    }
+    
+    // Projects
+    if (data.projects && data.projects.length > 0) {
+        html += `
+        <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #2c3e50; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Projects</h2>`;
+        
+        data.projects.forEach(project => {
+            html += `
+            <div style="margin-bottom: 12px;">
+                <strong style="font-size: 12px; color: #2c3e50;">${project.name}</strong>
+                <div style="font-size: 10px; color: #3498db; font-style: italic; margin: 3px 0;">${project.technologies}</div>
+                <p style="margin: 0; font-size: 11px; color: #444; line-height: 1.6;">${project.description}</p>`;
+            if (project.link) {
+                html += `<div style="font-size: 10px; color: #3498db; margin-top: 3px;">${project.link}</div>`;
+            }
+            html += `</div>`;
+        });
+        
+        html += `</div>`;
+    }
+    
+    // Education
+    if (data.education && data.education.length > 0) {
+        html += `
+        <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #2c3e50; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Education</h2>`;
+        
+        data.education.forEach(edu => {
+            html += `
+            <div style="margin-bottom: 12px;">
+                <div style="margin-bottom: 3px;">
+                    <strong style="font-size: 12px; color: #2c3e50;">${edu.degree}</strong>
+                    <span style="float: right; font-size: 11px; color: #666; font-style: italic;">${edu.year}</span>
+                </div>
+                <div style="clear: both; font-size: 11px; color: #555;">${edu.institution}</div>`;
+            if (edu.grade) {
+                html += `<div style="font-size: 11px; color: #666;">${edu.grade}</div>`;
+            }
+            html += `</div>`;
+        });
+        
+        html += `</div>`;
+    }
+    
+    // Certifications
+    const validCerts = data.certifications.filter(c => c.name);
+    if (validCerts.length > 0) {
+        html += `
+        <div style="margin-bottom: 20px;">
+            <h2 style="margin: 0 0 10px 0; font-size: 16px; color: #2c3e50; font-weight: bold; text-transform: uppercase; border-bottom: 2px solid #3498db; padding-bottom: 5px;">Certifications</h2>`;
+        
+        validCerts.forEach(cert => {
+            html += `
+            <div style="margin-bottom: 8px; font-size: 11px; color: #333;">
+                <strong>${cert.name}</strong> - ${cert.organization}, ${cert.year}
+            </div>`;
+        });
+        
+        html += `</div>`;
+    }
+    
+    html += `</div>`;
+    
+    return html;
 }
 
 // Modern Minimal Template
 function createModernTemplate(data) {
+    const skillsList = data.skills.map(skill => `<div style="margin-bottom: 5px;">• ${skill}</div>`).join('');
+    const educationList = data.education.map(edu => `
+        <div style="margin-bottom: 15px; font-size: 11px;">
+            <div style="font-weight: 600;">${edu.degree}</div>
+            <div style="opacity: 0.9;">${edu.institution}</div>
+            <div style="opacity: 0.8;">${edu.year}</div>
+            ${edu.grade ? `<div style="opacity: 0.8;">${edu.grade}</div>` : ''}
+        </div>
+    `).join('');
+    
+    const experienceList = data.experience.map(exp => `
+        <div style="margin-bottom: 20px;">
+            <table style="width: 100%; margin-bottom: 5px; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 70%; padding: 0;"><h3 style="font-size: 13px; color: #2c3e50; margin: 0; font-weight: 600;">${exp.title}</h3></td>
+                    <td style="width: 30%; text-align: right; padding: 0;"><span style="font-size: 10px; color: #666;">${exp.duration}</span></td>
+                </tr>
+            </table>
+            <div style="font-size: 11px; color: #3498db; margin-bottom: 8px; font-weight: 500;">${exp.company}</div>
+            <div style="font-size: 11px; line-height: 1.6; color: #444;">${exp.description}</div>
+        </div>
+    `).join('');
+    
+    const projectsList = data.projects.map(project => `
+        <div style="margin-bottom: 18px;">
+            <h3 style="font-size: 13px; color: #2c3e50; margin: 0 0 5px 0; font-weight: 600;">${project.name}</h3>
+            <div style="font-size: 10px; color: #3498db; margin-bottom: 6px; font-weight: 500;">${project.technologies}</div>
+            <div style="font-size: 11px; line-height: 1.6; color: #444;">${project.description}</div>
+            ${project.link ? `<div style="font-size: 10px; color: #3498db; margin-top: 4px;">${project.link}</div>` : ''}
+        </div>
+    `).join('');
+    
+    const certificationsList = data.certifications.filter(c => c.name).map(cert => `
+        <div style="margin-bottom: 12px; font-size: 11px;">
+            <div style="font-weight: 600; color: #2c3e50;">${cert.name}</div>
+            <div style="color: #666;">${cert.organization} • ${cert.year}</div>
+        </div>
+    `).join('');
+    
     return `
-        <div style="font-family: 'Segoe UI', Arial, sans-serif; display: flex; width: 210mm; height: 297mm; margin: 0; padding: 0;">
-            <!-- Sidebar -->
-            <div style="width: 35%; background: #2c3e50; color: white; padding: 40px 30px;">
-                <div style="margin-bottom: 40px;">
-                    <h1 style="font-size: 28px; margin: 0 0 5px 0; font-weight: 700;">${data.personal.fullName}</h1>
-                    <div style="font-size: 12px; opacity: 0.9; line-height: 1.6;">
-                        ${data.personal.email}<br>
-                        ${data.personal.phone}<br>
-                        ${data.personal.location}
-                        ${data.personal.linkedin ? '<br>' + data.personal.linkedin : ''}
-                        ${data.personal.portfolio ? '<br>' + data.personal.portfolio : ''}
-                    </div>
-                </div>
-                
-                <div style="margin-bottom: 35px;">
-                    <h2 style="font-size: 16px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #3498db; font-weight: 600;">SKILLS</h2>
-                    <div style="font-size: 11px; line-height: 1.8;">
-                        ${data.skills.map(skill => `<div style="margin-bottom: 5px;">• ${skill}</div>`).join('')}
-                    </div>
-                </div>
-                
-                ${data.education.length > 0 ? `
-                <div style="margin-bottom: 35px;">
-                    <h2 style="font-size: 16px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #3498db; font-weight: 600;">EDUCATION</h2>
-                    ${data.education.map(edu => `
-                        <div style="margin-bottom: 15px; font-size: 11px;">
-                            <div style="font-weight: 600;">${edu.degree}</div>
-                            <div style="opacity: 0.9;">${edu.institution}</div>
-                            <div style="opacity: 0.8;">${edu.year}</div>
-                            ${edu.grade ? `<div style="opacity: 0.8;">${edu.grade}</div>` : ''}
-                        </div>
-                    `).join('')}
-                </div>
-                ` : ''}
-            </div>
-            
-            <!-- Main Content -->
-            <div style="width: 65%; padding: 40px 35px; background: white;">
-                <div style="margin-bottom: 30px;">
-                    <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">PROFESSIONAL SUMMARY</h2>
-                    <p style="font-size: 11px; line-height: 1.6; color: #333; margin: 0;">${data.summary}</p>
-                </div>
-                
-                ${data.experience.length > 0 ? `
-                <div style="margin-bottom: 30px;">
-                    <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">EXPERIENCE</h2>
-                    ${data.experience.map(exp => `
-                        <div style="margin-bottom: 20px;">
-                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                <h3 style="font-size: 13px; color: #2c3e50; margin: 0; font-weight: 600;">${exp.title}</h3>
-                                <span style="font-size: 10px; color: #666;">${exp.duration}</span>
+        <div style="font-family: Arial, sans-serif; width: 210mm; min-height: 297mm; margin: 0; padding: 0; box-sizing: border-box;">
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <tr>
+                    <td style="width: 35%; background-color: #2c3e50; color: white; padding: 40px 30px; vertical-align: top;">
+                        <div style="margin-bottom: 40px;">
+                            <h1 style="font-size: 28px; margin: 0 0 10px 0; font-weight: 700; color: white;">${data.personal.fullName}</h1>
+                            <div style="font-size: 12px; line-height: 1.8; color: white;">
+                                ${data.personal.email}<br>
+                                ${data.personal.phone}<br>
+                                ${data.personal.location}
+                                ${data.personal.linkedin ? '<br>' + data.personal.linkedin : ''}
+                                ${data.personal.portfolio ? '<br>' + data.personal.portfolio : ''}
                             </div>
-                            <div style="font-size: 11px; color: #3498db; margin-bottom: 8px; font-weight: 500;">${exp.company}</div>
-                            <div style="font-size: 11px; line-height: 1.6; color: #444;">${exp.description}</div>
                         </div>
-                    `).join('')}
-                </div>
-                ` : ''}
-                
-                ${data.projects.length > 0 ? `
-                <div style="margin-bottom: 30px;">
-                    <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">PROJECTS</h2>
-                    ${data.projects.map(project => `
-                        <div style="margin-bottom: 18px;">
-                            <h3 style="font-size: 13px; color: #2c3e50; margin: 0 0 5px 0; font-weight: 600;">${project.name}</h3>
-                            <div style="font-size: 10px; color: #3498db; margin-bottom: 6px; font-weight: 500;">${project.technologies}</div>
-                            <div style="font-size: 11px; line-height: 1.6; color: #444;">${project.description}</div>
-                            ${project.link ? `<div style="font-size: 10px; color: #3498db; margin-top: 4px;">${project.link}</div>` : ''}
+                        
+                        <div style="margin-bottom: 35px;">
+                            <h2 style="font-size: 16px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #3498db; font-weight: 600; color: white;">SKILLS</h2>
+                            <div style="font-size: 11px; line-height: 1.8; color: white;">
+                                ${skillsList}
+                            </div>
                         </div>
-                    `).join('')}
-                </div>
-                ` : ''}
-                
-                ${data.certifications.filter(c => c.name).length > 0 ? `
-                <div>
-                    <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">CERTIFICATIONS</h2>
-                    ${data.certifications.filter(c => c.name).map(cert => `
-                        <div style="margin-bottom: 12px; font-size: 11px;">
-                            <div style="font-weight: 600; color: #2c3e50;">${cert.name}</div>
-                            <div style="color: #666;">${cert.organization} • ${cert.year}</div>
+                        
+                        ${data.education.length > 0 ? `
+                        <div style="margin-bottom: 35px;">
+                            <h2 style="font-size: 16px; margin: 0 0 15px 0; padding-bottom: 8px; border-bottom: 2px solid #3498db; font-weight: 600; color: white;">EDUCATION</h2>
+                            <div style="color: white;">
+                                ${educationList}
+                            </div>
                         </div>
-                    `).join('')}
-                </div>
-                ` : ''}
-            </div>
+                        ` : ''}
+                    </td>
+                    
+                    <td style="width: 65%; padding: 40px 35px; background-color: white; vertical-align: top;">
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 10px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">PROFESSIONAL SUMMARY</h2>
+                            <p style="font-size: 11px; line-height: 1.6; color: #333; margin: 0;">${data.summary}</p>
+                        </div>
+                        
+                        ${data.experience.length > 0 ? `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">EXPERIENCE</h2>
+                            ${experienceList}
+                        </div>
+                        ` : ''}
+                        
+                        ${data.projects.length > 0 ? `
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">PROJECTS</h2>
+                            ${projectsList}
+                        </div>
+                        ` : ''}
+                        
+                        ${certificationsList ? `
+                        <div>
+                            <h2 style="font-size: 16px; color: #2c3e50; margin: 0 0 15px 0; padding-bottom: 6px; border-bottom: 3px solid #3498db; font-weight: 600;">CERTIFICATIONS</h2>
+                            ${certificationsList}
+                        </div>
+                        ` : ''}
+                    </td>
+                </tr>
+            </table>
         </div>
     `;
 }
 
 // Professional Corporate Template
 function createProfessionalTemplate(data) {
+    const experienceList = data.experience.map(exp => `
+        <div style="margin-bottom: 18px;">
+            <table style="width: 100%; margin-bottom: 3px; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 70%; padding: 0;"><h3 style="font-size: 12px; font-weight: bold; margin: 0; color: black;">${exp.title}</h3></td>
+                    <td style="width: 30%; text-align: right; padding: 0;"><span style="font-size: 11px; font-style: italic; color: black;">${exp.duration}</span></td>
+                </tr>
+            </table>
+            <div style="font-size: 11px; font-weight: bold; margin-bottom: 6px; color: black;">${exp.company}</div>
+            <div style="font-size: 11px; line-height: 1.6; text-align: justify; color: black;">${exp.description}</div>
+        </div>
+    `).join('');
+    
+    const projectsList = data.projects.map(project => `
+        <div style="margin-bottom: 15px;">
+            <h3 style="font-size: 12px; font-weight: bold; margin: 0 0 3px 0; color: black;">${project.name}</h3>
+            <div style="font-size: 10px; font-style: italic; margin-bottom: 5px; color: black;">${project.technologies}</div>
+            <div style="font-size: 11px; line-height: 1.6; text-align: justify; color: black;">${project.description}</div>
+            ${project.link ? `<div style="font-size: 10px; margin-top: 3px; color: black;">${project.link}</div>` : ''}
+        </div>
+    `).join('');
+    
+    const educationList = data.education.map(edu => `
+        <div style="margin-bottom: 12px; font-size: 11px;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 70%; padding: 0;"><strong style="color: black;">${edu.degree}</strong></td>
+                    <td style="width: 30%; text-align: right; padding: 0;"><span style="font-style: italic; color: black;">${edu.year}</span></td>
+                </tr>
+            </table>
+            <div style="color: black;">${edu.institution}</div>
+    ${edu.grade ? `<div style="color: black;">${edu.grade}</div>` : ''}
+        </div>
+    `).join('');
+    
+    const certificationsList = data.certifications.filter(c => c.name).map(cert => `
+        <div style="margin-bottom: 8px; font-size: 11px; color: black;">
+            <strong>${cert.name}</strong> - ${cert.organization}, ${cert.year}
+        </div>
+    `).join('');
+    
     return `
-        <div style="font-family: 'Times New Roman', serif; width: 210mm; height: 297mm; padding: 25mm; margin: 0; background: white; color: #000;">
+        <div style="font-family: Times New Roman, serif; width: 210mm; min-height: 297mm; padding: 25mm; margin: 0; background: white; color: black; box-sizing: border-box;">
             <!-- Header -->
-            <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid #000; padding-bottom: 20px;">
-                <h1 style="font-size: 32px; margin: 0 0 10px 0; font-weight: bold; letter-spacing: 1px;">${data.personal.fullName.toUpperCase()}</h1>
-                <div style="font-size: 11px; line-height: 1.6;">
+            <div style="text-align: center; margin-bottom: 25px; border-bottom: 2px solid black; padding-bottom: 20px;">
+                <h1 style="font-size: 32px; margin: 0 0 10px 0; font-weight: bold; letter-spacing: 1px; color: black;">${data.personal.fullName.toUpperCase()}</h1>
+                <div style="font-size: 11px; line-height: 1.6; color: black;">
                     ${data.personal.email} | ${data.personal.phone} | ${data.personal.location}
                     ${data.personal.linkedin ? ' | ' + data.personal.linkedin : ''}
                     ${data.personal.portfolio ? ' | ' + data.personal.portfolio : ''}
@@ -969,76 +1420,47 @@ function createProfessionalTemplate(data) {
             
             <!-- Professional Summary -->
             <div style="margin-bottom: 25px;">
-                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">Professional Summary</h2>
-                <p style="font-size: 11px; line-height: 1.6; margin: 0; text-align: justify;">${data.summary}</p>
+                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; color: black;">Professional Summary</h2>
+                <p style="font-size: 11px; line-height: 1.6; margin: 0; text-align: justify; color: black;">${data.summary}</p>
             </div>
             
             <!-- Skills -->
             <div style="margin-bottom: 25px;">
-                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">Core Competencies</h2>
-                <div style="font-size: 11px; line-height: 1.8;">
+                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; color: black;">Core Competencies</h2>
+                <div style="font-size: 11px; line-height: 1.8; color: black;">
                     ${data.skills.join(' • ')}
                 </div>
             </div>
             
-            <!-- Experience -->
             ${data.experience.length > 0 ? `
+            <!-- Experience -->
             <div style="margin-bottom: 25px;">
-                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px;">Professional Experience</h2>
-                ${data.experience.map(exp => `
-                    <div style="margin-bottom: 18px;">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 3px;">
-                            <h3 style="font-size: 12px; font-weight: bold; margin: 0;">${exp.title}</h3>
-                            <span style="font-size: 11px; font-style: italic;">${exp.duration}</span>
-                        </div>
-                        <div style="font-size: 11px; font-weight: bold; margin-bottom: 6px;">${exp.company}</div>
-                        <div style="font-size: 11px; line-height: 1.6; text-align: justify;">${exp.description}</div>
-                    </div>
-                `).join('')}
+                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; color: black;">Professional Experience</h2>
+                ${experienceList}
             </div>
             ` : ''}
             
-            <!-- Projects -->
             ${data.projects.length > 0 ? `
+            <!-- Projects -->
             <div style="margin-bottom: 25px;">
-                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px;">Key Projects</h2>
-                ${data.projects.map(project => `
-                    <div style="margin-bottom: 15px;">
-                        <h3 style="font-size: 12px; font-weight: bold; margin: 0 0 3px 0;">${project.name}</h3>
-                        <div style="font-size: 10px; font-style: italic; margin-bottom: 5px;">${project.technologies}</div>
-                        <div style="font-size: 11px; line-height: 1.6; text-align: justify;">${project.description}</div>
-                        ${project.link ? `<div style="font-size: 10px; margin-top: 3px;">${project.link}</div>` : ''}
-                    </div>
-                `).join('')}
+                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 1px; color: black;">Key Projects</h2>
+                ${projectsList}
             </div>
             ` : ''}
             
-            <!-- Education -->
             ${data.education.length > 0 ? `
+            <!-- Education -->
             <div style="margin-bottom: 25px;">
-                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">Education</h2>
-                ${data.education.map(edu => `
-                    <div style="margin-bottom: 12px; font-size: 11px;">
-                        <div style="display: flex; justify-content: space-between;">
-                            <strong>${edu.degree}</strong>
-                            <span style="font-style: italic;">${edu.year}</span>
-                        </div>
-                        <div>${edu.institution}</div>
-                        ${edu.grade ? `<div>${edu.grade}</div>` : ''}
-                    </div>
-                `).join('')}
+                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; color: black;">Education</h2>
+                ${educationList}
             </div>
             ` : ''}
             
+            ${certificationsList ? `
             <!-- Certifications -->
-            ${data.certifications.filter(c => c.name).length > 0 ? `
             <div>
-                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px;">Certifications</h2>
-                ${data.certifications.filter(c => c.name).map(cert => `
-                    <div style="margin-bottom: 8px; font-size: 11px;">
-                        <strong>${cert.name}</strong> - ${cert.organization}, ${cert.year}
-                    </div>
-                `).join('')}
+                <h2 style="font-size: 14px; font-weight: bold; margin: 0 0 10px 0; text-transform: uppercase; letter-spacing: 1px; color: black;">Certifications</h2>
+                ${certificationsList}
             </div>
             ` : ''}
         </div>
@@ -1047,12 +1469,55 @@ function createProfessionalTemplate(data) {
 
 // Creative Layout Template
 function createCreativeTemplate(data) {
+    const skillsList = data.skills.map(skill => `
+        <span style="background-color: #667eea; color: white; padding: 6px 12px; margin: 4px; display: inline-block; font-weight: 600; font-size: 10px;">${skill}</span>
+    `).join('');
+    
+    const experienceList = data.experience.map(exp => `
+        <div style="margin-bottom: 20px; padding-left: 20px; border-left: 4px solid #667eea;">
+            <table style="width: 100%; margin-bottom: 5px; border-collapse: collapse;">
+                <tr>
+                    <td style="width: 70%; padding: 0;"><h3 style="font-size: 13px; color: #333; margin: 0; font-weight: 700;">${exp.title}</h3></td>
+                    <td style="width: 30%; text-align: right; padding: 0;"><span style="font-size: 10px; color: white; background-color: #667eea; padding: 3px 10px;">${exp.duration}</span></td>
+                </tr>
+            </table>
+            <div style="font-size: 12px; color: #764ba2; margin-bottom: 8px; font-weight: 600;">${exp.company}</div>
+            <div style="font-size: 11px; line-height: 1.6; color: #555;">${exp.description}</div>
+        </div>
+    `).join('');
+    
+    const projectsList = data.projects.map(project => `
+        <div style="margin-bottom: 18px; background-color: #f8f9fa; padding: 15px; border-left: 3px solid #764ba2;">
+            <h3 style="font-size: 13px; color: #333; margin: 0 0 5px 0; font-weight: 700;">${project.name}</h3>
+            <div style="font-size: 10px; color: #764ba2; margin-bottom: 8px; font-weight: 600;">${project.technologies}</div>
+            <div style="font-size: 11px; line-height: 1.6; color: #555;">${project.description}</div>
+            ${project.link ? `<div style="font-size: 10px; color: #667eea; margin-top: 5px;">${project.link}</div>` : ''}
+        </div>
+    `).join('');
+    
+    const educationList = data.education.map(edu => `
+        <div style="margin-bottom: 15px; background-color: #f8f9fa; padding: 12px;">
+            <div style="font-weight: 700; font-size: 12px; color: #333; margin-bottom: 5px;">${edu.degree}</div>
+            <div style="font-size: 11px; color: #555; margin-bottom: 3px;">${edu.institution}</div>
+            <div style="font-size: 10px; color: #764ba2; font-weight: 600;">${edu.year}</div>
+            ${edu.grade ? `<div style="font-size: 10px; color: #667eea; margin-top: 3px;">${edu.grade}</div>` : ''}
+        </div>
+    `).join('');
+    
+    const certificationsList = data.certifications.filter(c => c.name).map(cert => `
+        <div style="margin-bottom: 12px; font-size: 11px; padding: 10px; background-color: #f8f9fa;">
+            <div style="font-weight: 700; color: #333; margin-bottom: 3px;">${cert.name}</div>
+            <div style="font-size: 10px; color: #555;">${cert.organization}</div>
+            <div style="font-size: 10px; color: #764ba2; font-weight: 600;">${cert.year}</div>
+        </div>
+    `).join('');
+    
     return `
-        <div style="font-family: 'Arial', sans-serif; width: 210mm; height: 297mm; margin: 0; padding: 0; background: white;">
+        <div style="font-family: Arial, sans-serif; width: 210mm; min-height: 297mm; margin: 0; padding: 0; background: white; box-sizing: border-box;">
             <!-- Header -->
-            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 35px 40px;">
-                <h1 style="font-size: 36px; margin: 0 0 8px 0; font-weight: 700;">${data.personal.fullName}</h1>
-                <div style="font-size: 12px; opacity: 0.95; line-height: 1.6;">
+            <div style="background-color: #667eea; color: white; padding: 35px 40px;">
+                <h1 style="font-size: 36px; margin: 0 0 8px 0; font-weight: 700; color: white;">${data.personal.fullName}</h1>
+                <div style="font-size: 12px; line-height: 1.6; color: white;">
                     ${data.personal.email} • ${data.personal.phone} • ${data.personal.location}
                     ${data.personal.linkedin ? '<br>' + data.personal.linkedin : ''}
                     ${data.personal.portfolio ? ' • ' + data.personal.portfolio : ''}
@@ -1060,91 +1525,61 @@ function createCreativeTemplate(data) {
             </div>
             
             <!-- Two Column Layout -->
-            <div style="display: flex; padding: 35px 40px;">
-                <!-- Left Column -->
-                <div style="width: 60%; padding-right: 30px;">
-                    <!-- Summary -->
-                    <div style="margin-bottom: 30px;">
-                        <h2 style="font-size: 18px; color: #667eea; margin: 0 0 12px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">ABOUT ME</h2>
-                        <p style="font-size: 11px; line-height: 1.7; color: #333; margin: 0; text-align: justify;">${data.summary}</p>
-                    </div>
-                    
-                    <!-- Experience -->
-                    ${data.experience.length > 0 ? `
-                    <div style="margin-bottom: 30px;">
-                        <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">EXPERIENCE</h2>
-                        ${data.experience.map(exp => `
-                            <div style="margin-bottom: 20px; position: relative; padding-left: 20px; border-left: 2px solid #e0e0e0;">
-                                <div style="position: absolute; left: -6px; top: 3px; width: 10px; height: 10px; border-radius: 50%; background: #667eea;"></div>
-                                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
-                                    <h3 style="font-size: 13px; color: #333; margin: 0; font-weight: 700;">${exp.title}</h3>
-                                    <span style="font-size: 10px; color: #fff; background: #667eea; padding: 3px 10px; border-radius: 12px;">${exp.duration}</span>
-                                </div>
-                                <div style="font-size: 12px; color: #764ba2; margin-bottom: 8px; font-weight: 600;">${exp.company}</div>
-                                <div style="font-size: 11px; line-height: 1.6; color: #555;">${exp.description}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                    
-                    <!-- Projects -->
-                    ${data.projects.length > 0 ? `
-                    <div style="margin-bottom: 30px;">
-                        <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">PROJECTS</h2>
-                        ${data.projects.map(project => `
-                            <div style="margin-bottom: 18px; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 3px solid #764ba2;">
-                                <h3 style="font-size: 13px; color: #333; margin: 0 0 5px 0; font-weight: 700;">${project.name}</h3>
-                                <div style="font-size: 10px; color: #764ba2; margin-bottom: 8px; font-weight: 600;">${project.technologies}</div>
-                                <div style="font-size: 11px; line-height: 1.6; color: #555;">${project.description}</div>
-                                ${project.link ? `<div style="font-size: 10px; color: #667eea; margin-top: 5px;">${project.link}</div>` : ''}
-                            </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                </div>
-                
-                <!-- Right Column -->
-                <div style="width: 40%;">
-                    <!-- Skills -->
-                    <div style="margin-bottom: 30px;">
-                        <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">SKILLS</h2>
-                        <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                            ${data.skills.map(skill => `
-                                <span style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 6px 12px; border-radius: 15px; font-size: 10px; font-weight: 600;">${skill}</span>
-                            `).join('')}
+            <table style="width: 100%; border-collapse: collapse; table-layout: fixed;">
+                <tr>
+                    <!-- Left Column -->
+                    <td style="width: 60%; padding: 35px 30px 35px 40px; vertical-align: top;">
+                        <!-- Summary -->
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #667eea; margin: 0 0 12px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">ABOUT ME</h2>
+                            <p style="font-size: 11px; line-height: 1.7; color: #333; margin: 0; text-align: justify;">${data.summary}</p>
                         </div>
-                    </div>
+                        
+                        ${data.experience.length > 0 ? `
+                        <!-- Experience -->
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">EXPERIENCE</h2>
+                            ${experienceList}
+                        </div>
+                        ` : ''}
+                        
+                        ${data.projects.length > 0 ? `
+                        <!-- Projects -->
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">PROJECTS</h2>
+                            ${projectsList}
+                        </div>
+                        ` : ''}
+                    </td>
                     
-                    <!-- Education -->
-                    ${data.education.length > 0 ? `
-                    <div style="margin-bottom: 30px;">
-                        <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">EDUCATION</h2>
-                        ${data.education.map(edu => `
-                            <div style="margin-bottom: 15px; background: #f8f9fa; padding: 12px; border-radius: 6px;">
-                                <div style="font-weight: 700; font-size: 12px; color: #333; margin-bottom: 5px;">${edu.degree}</div>
-                                <div style="font-size: 11px; color: #555; margin-bottom: 3px;">${edu.institution}</div>
-                                <div style="font-size: 10px; color: #764ba2; font-weight: 600;">${edu.year}</div>
-                                ${edu.grade ? `<div style="font-size: 10px; color: #667eea; margin-top: 3px;">${edu.grade}</div>` : ''}
+                    <!-- Right Column -->
+                    <td style="width: 40%; padding: 35px 40px 35px 30px; vertical-align: top;">
+                        <!-- Skills -->
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">SKILLS</h2>
+                            <div style="line-height: 2.2;">
+                                ${skillsList}
                             </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                    
-                    <!-- Certifications -->
-                    ${data.certifications.filter(c => c.name).length > 0 ? `
-                    <div>
-                        <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">CERTIFICATIONS</h2>
-                        ${data.certifications.filter(c => c.name).map(cert => `
-                            <div style="margin-bottom: 12px; font-size: 11px; padding: 10px; background: #f8f9fa; border-radius: 6px;">
-                                <div style="font-weight: 700; color: #333; margin-bottom: 3px;">${cert.name}</div>
-                                <div style="font-size: 10px; color: #555;">${cert.organization}</div>
-                                <div style="font-size: 10px; color: #764ba2; font-weight: 600;">${cert.year}</div>
-                            </div>
-                        `).join('')}
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
+                        </div>
+                        
+                        ${data.education.length > 0 ? `
+                        <!-- Education -->
+                        <div style="margin-bottom: 30px;">
+                            <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">EDUCATION</h2>
+                            ${educationList}
+                        </div>
+                        ` : ''}
+                        
+                        ${certificationsList ? `
+                        <!-- Certifications -->
+                        <div>
+                            <h2 style="font-size: 18px; color: #667eea; margin: 0 0 15px 0; font-weight: 700; border-left: 4px solid #667eea; padding-left: 12px;">CERTIFICATIONS</h2>
+                            ${certificationsList}
+                        </div>
+                        ` : ''}
+                    </td>
+                </tr>
+            </table>
         </div>
     `;
 }

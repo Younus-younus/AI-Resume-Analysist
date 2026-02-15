@@ -396,8 +396,14 @@ def load_models():
 
 
 @app.route('/')
-def index():
-    """Serve the main page"""
+def home():
+    """Serve the home page"""
+    return render_template('homePage.html')
+
+
+@app.route('/screening')
+def screening():
+    """Serve the resume screening page"""
     return render_template('index.html')
 
 

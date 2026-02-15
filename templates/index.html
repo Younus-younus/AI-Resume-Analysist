@@ -10,40 +10,23 @@
     <!-- Header -->
     <header class="header">
         <div class="logo">
-            <span class="logo-icon">🎯</span>
-            <h1>Resume Booster AI</h1>
+            <a href="/" style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.5rem;">
+                <h1>Resume Booster AI</h1>
+            </a>
         </div>
-        <p class="tagline">Discover your perfect career match powered by AI</p>
+        <p class="tagline">Upload your resume and get AI-powered career recommendations</p>
     </header>
 
     <!-- Main Content -->
     <main class="main-content">
-            <!-- Feature Selection Section -->
-            <div class="feature-selection-section" id="featureSelection">
-                <h2 class="feature-title">Choose Your Tool</h2>
-                <p class="feature-subtitle">Select what you'd like to do today</p>
-                <div class="feature-cards">
-                    <div class="feature-card" id="selectScreening">
-                        <div class="feature-icon">🎯</div>
-                        <h3>Resume Screening</h3>
-                        <p>Upload your resume and get AI-powered career recommendations based on your skills</p>
-                        <button class="feature-btn">Get Started →</button>
-                    </div>
-                    <a href="/resume-builder" style="text-decoration: none; color: inherit;">
-                        <div class="feature-card">
-                            <div class="feature-icon">📝</div>
-                            <h3>Resume Builder</h3>
-                            <p>Create a professional resume from scratch with customizable templates</p>
-                            <button class="feature-btn">Build Resume →</button>
-                        </div>
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <div style="margin-bottom: 1rem;">
+                    <a href="/" class="btn-secondary" style="display: inline-block; text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px;">
+                        ← Back to Home
                     </a>
                 </div>
-            </div>
-
-            <!-- Upload Section -->
-            <div class="upload-section" id="uploadSection" style="display: none;">
                 <div class="upload-card">
-                    <div class="upload-icon">📄</div>
                     <h2>Upload Your Resume</h2>
                     <p class="upload-description">
                         Get instant AI-powered career recommendations based on your skills and experience
@@ -57,7 +40,6 @@
                             hidden
                         />
                         <div class="upload-placeholder">
-                            <span class="upload-cloud">☁️</span>
                             <p><strong>Click to upload</strong> or drag and drop</p>
                             <p class="file-types">PDF, DOCX, or TXT (Max 10MB)</p>
                         </div>
@@ -69,9 +51,8 @@
                     </button>
                     
                     <div class="selected-file" id="selectedFile" style="display: none;">
-                        <span class="file-icon">📎</span>
                         <span class="file-name"></span>
-                        <button class="remove-file" id="removeFile">✕</button>
+                        <button class="remove-file" id="removeFile">×</button>
                     </div>
                 </div>
             </div>
@@ -97,7 +78,7 @@
 
                         <!-- Primary Match -->
                         <div class="primary-match">
-                            <div class="match-badge">🏆 Best Match</div>
+                            <div class="match-badge">Best Match</div>
                             <h3 class="match-role" id="primaryRole">Data Scientist</h3>
                             <div class="confidence-bar">
                                 <div class="confidence-fill" id="primaryConfidence"></div>
@@ -110,11 +91,9 @@
                 <!-- Career & Skills Tab Navigation Bar -->
                 <div class="tab-navbar career-skills-navbar">
                     <button class="tab-button active" data-tab="recommendations">
-                        <span class="tab-icon">📊</span>
                         <span class="tab-text">Top 3 Recommendations</span>
                     </button>
                     <button class="tab-button" data-tab="skills">
-                        <span class="tab-icon">⚡</span>
                         <span class="tab-text">Skills Detected</span>
                     </button>
                 </div>
@@ -142,7 +121,7 @@
 
                 <!-- Best Fit Job Section -->
                 <div class="best-fit-section">
-                    <h3 class="section-title">🎯 Recommended Best Fit</h3>
+                    <h3 class="section-title">Recommended Best Fit</h3>
                     <div class="best-fit-card" id="bestFitCard">
                         <!-- Will be dynamically inserted -->
                     </div>
@@ -151,11 +130,9 @@
                 <!-- Tab Navigation Bar -->
                 <div class="tab-navbar">
                     <button class="tab-button active" data-tab="apply">
-                        <span class="tab-icon">💼</span>
                         <span class="tab-text">Where to Apply</span>
                     </button>
                     <button class="tab-button" data-tab="interview">
-                        <span class="tab-icon">📝</span>
                         <span class="tab-text">Interview Questions</span>
                     </button>
                 </div>
@@ -186,10 +163,10 @@
                 <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn-secondary" id="downloadReport">
-                        📥 Download Report
+                        Download Report
                     </button>
                     <button class="btn-outline" id="shareResults">
-                        🔗 Share Results
+                        Share Results
                     </button>
                 </div>
                     </div>
@@ -198,23 +175,20 @@
                     <div class="results-sidebar">
                         <!-- Quick Stats Card -->
                         <div class="sidebar-card stats-card">
-                            <h3 class="sidebar-title">📊 Summary</h3>
+                            <h3 class="sidebar-title">Summary</h3>
                             <div class="stat-item">
-                                <span class="stat-icon">🎯</span>
                                 <div class="stat-info">
                                     <div class="stat-label">Best Match</div>
                                     <div class="stat-value" id="sidebarBestMatch">-</div>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-icon">⚡</span>
                                 <div class="stat-info">
                                     <div class="stat-label">Skills Found</div>
                                     <div class="stat-value" id="sidebarSkillsCount">0</div>
                                 </div>
                             </div>
                             <div class="stat-item">
-                                <span class="stat-icon">💼</span>
                                 <div class="stat-info">
                                     <div class="stat-label">Job Matches</div>
                                     <div class="stat-value" id="sidebarJobsCount">3</div>
@@ -224,24 +198,21 @@
 
                         <!-- Quick Actions Card -->
                         <div class="sidebar-card actions-card">
-                            <h3 class="sidebar-title">⚡ Quick Actions</h3>
+                            <h3 class="sidebar-title">Quick Actions</h3>
                             <button class="sidebar-btn" id="sidebarDownload">
-                                <span class="sidebar-btn-icon">📥</span>
                                 <span>Download PDF</span>
                             </button>
                             <button class="sidebar-btn" id="sidebarShare">
-                                <span class="sidebar-btn-icon">🔗</span>
                                 <span>Share Results</span>
                             </button>
                             <button class="sidebar-btn" id="sidebarNewAnalysis">
-                                <span class="sidebar-btn-icon">🔄</span>
                                 <span>New Analysis</span>
                             </button>
                         </div>
 
                         <!-- Tips Card -->
                         <div class="sidebar-card tips-card">
-                            <h3 class="sidebar-title">💡 Pro Tips</h3>
+                            <h3 class="sidebar-title">Pro Tips</h3>
                             <div class="tip-item">
                                 <span class="tip-number">1</span>
                                 <p>Tailor your resume for each job application</p>
@@ -258,7 +229,7 @@
 
                         <!-- Confidence Meter -->
                         <div class="sidebar-card confidence-card">
-                            <h3 class="sidebar-title">📈 Match Score</h3>
+                            <h3 class="sidebar-title">Match Score</h3>
                             <div class="confidence-meter">
                                 <div class="meter-value" id="sidebarConfidence">0%</div>
                                 <div class="meter-bar">
@@ -273,7 +244,7 @@
 
             <!-- Error Section -->
             <div class="error-section" id="errorSection" style="display: none;">
-                <div class="error-icon">⚠️</div>
+                <div class="error-icon">!</div>
                 <h3>Something went wrong</h3>
                 <p class="error-message" id="errorMessage"></p>
                 <button class="btn-primary" id="tryAgain">Try Again</button>
@@ -286,6 +257,6 @@
             <p class="footer-note">Resume Booster AI • Helping you find your perfect career match</p>
         </footer>
 
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script type="module" src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>
